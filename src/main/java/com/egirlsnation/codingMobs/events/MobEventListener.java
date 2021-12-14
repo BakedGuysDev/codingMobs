@@ -10,6 +10,7 @@ import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftCreature;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Skeleton;
+import org.bukkit.entity.Snowman;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.Zombie;
 import org.bukkit.event.EventHandler;
@@ -54,14 +55,31 @@ public class MobEventListener implements Listener {
 		if (event.getEntity() instanceof Player && event.getDamager() instanceof Villager
 				&& event.getDamager().getCustomName() != null) {
 
+			try {
 			((Thief) (((CraftCreature) event.getDamager()).getHandle())).setAttacked(true);
 			((Thief) (((CraftCreature) event.getDamager()).getHandle())).stealItems((Player) event.getEntity());
-
+			
 			((Player) (event.getEntity()))
 					.sendMessage(ChatColor.RED + "The dirty thief stole your items. Kill him to get your items back!");
-
+			} catch (Exception ex) {
+				// class loader exception, did you fucking reload the plugin idiot?
+				// reloading the chunks will fix it you baka so chill
+			}
+			
+			((Player) event.getEntity()).damage(5.0D);
+			event.setCancelled(true);
+			
 		}
-
+		
+		// Check if snowman attacked player
+		if (event.getEntity() instanceof Player && event.getDamager() instanceof Snowman
+				&& event.getDamager().getCustomName() != null) {
+			
+			((Player) event.getEntity()).damage(5.0D);
+			event.setCancelled(true);
+			
+		}
+		
 	}
 
 	@EventHandler
@@ -118,11 +136,11 @@ public class MobEventListener implements Listener {
 		if ((r.nextInt(1000 + 0) - 0) > 500) {
 			// spawn theif
 			Thief dirtyThief = new Thief(plugin, event.getEntity().getLocation());
-			World world = event.getEntity().getWorld();
+			World world = plugin.getServer().getWorld(event.getEntity().getWorld().getName());
 			((CraftWorld) world).getHandle().addEntity(dirtyThief);
 		} else { // spawn snowman
 			Bob angryBob = new Bob(plugin, event.getEntity().getLocation(), false, false);
-			World world = event.getEntity().getWorld();
+			World world = plugin.getServer().getWorld(event.getEntity().getWorld().getName());
 			((CraftWorld) world).getHandle().addEntity(angryBob);
 		}
 

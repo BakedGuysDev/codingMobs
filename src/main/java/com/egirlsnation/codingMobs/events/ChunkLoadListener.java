@@ -40,7 +40,7 @@ public class ChunkLoadListener implements Listener {
 			if ((entity instanceof Villager) && entity.getCustomName() != null) {
 
 				Location location = entity.getLocation();
-				World world = entity.getWorld();
+				World world = plugin.getServer().getWorld(entity.getWorld().getName());
 				entity.remove();
 				Thief dirtyThief = new Thief(plugin, location);
 				((CraftWorld) world).getHandle().addEntity(dirtyThief);
@@ -48,7 +48,7 @@ public class ChunkLoadListener implements Listener {
 			} else if ((entity instanceof Snowman) && entity.getCustomName() != null) {
 
 				Location location = entity.getLocation();
-				World world = entity.getWorld();
+				World world = plugin.getServer().getWorld(entity.getWorld().getName());
 				entity.remove();
 				Bob angryBob = new Bob(plugin, location, false, false);
 				((CraftWorld) world).getHandle().addEntity(angryBob);
