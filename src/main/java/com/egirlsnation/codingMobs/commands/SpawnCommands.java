@@ -2,8 +2,6 @@ package com.egirlsnation.codingMobs.commands;
 
 import java.util.logging.Logger;
 
-import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
