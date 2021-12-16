@@ -3,35 +3,35 @@ package com.egirlsnation.codingMobs;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import java.lang.reflect.Field;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_17_R1.attribute.CraftAttributeMap;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftVillager;
-import org.bukkit.entity.Player;
+import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftVillager;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.attribute.Attribute;
 
-import net.minecraft.network.chat.ChatComponentText;
-import net.minecraft.world.entity.EntityTypes;
-import net.minecraft.world.entity.ai.attributes.AttributeBase;
-import net.minecraft.world.entity.ai.attributes.AttributeMapBase;
-import net.minecraft.world.entity.ai.attributes.AttributeModifiable;
-import net.minecraft.world.entity.ai.attributes.GenericAttributes;
-import net.minecraft.world.entity.ai.goal.PathfinderGoalAvoidTarget;
-import net.minecraft.world.entity.ai.goal.PathfinderGoalMeleeAttack;
-import net.minecraft.world.entity.ai.goal.PathfinderGoalPanic;
-import net.minecraft.world.entity.ai.goal.PathfinderGoalRandomLookaround;
-import net.minecraft.world.entity.ai.goal.PathfinderGoalRandomStrollLand;
-import net.minecraft.world.entity.ai.goal.target.PathfinderGoalNearestAttackableTarget;
-import net.minecraft.world.entity.npc.EntityVillager;
-import net.minecraft.world.entity.player.EntityHuman;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.world.entity.ai.goal.PanicGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
-public class Thief extends EntityVillager {
+public class Thief extends Villager {
 
 	private static Field attributeField;
 
@@ -41,28 +41,47 @@ public class Thief extends EntityVillager {
 	private boolean avoiding = false;
 
 	public Thief(Main plugin, Location location) {
-		super(EntityTypes.aV, ((CraftWorld) location.getWorld()).getHandle());
-		this.bK = 20;
+		super(EntityType.VILLAGER, (Level) ((CraftWorld) location.getWorld()).getHandle());
 
 		// Setup the villager
-		this.setPosition(location.getX(), location.getY(), location.getZ());
-		this.setCustomName(new ChatComponentText(ChatColor.RED + "[JEW] " + ChatColor.GOLD + "Thief"));
+		this.setPos(location.getX(), location.getY(), location.getZ());
+		this.setCustomName(new TextComponent(ChatColor.RED + "[JEW] " + ChatColor.GOLD + "Thief"));
 		this.setCustomNameVisible(true);
 
 		// Attempt to give the entity attack damage
 		try {
-			registerGenericAttribute(this.getBukkitEntity(), Attribute.GENERIC_ATTACK_DAMAGE);
-			registerGenericAttribute(this.getBukkitEntity(), Attribute.GENERIC_FOLLOW_RANGE);
+			registerGenericAttribute(this.getBukkitEntity(), Attributes.ATTACK_DAMAGE);
+			registerGenericAttribute(this.getBukkitEntity(), Attributes.FOLLOW_RANGE);
 		} catch (IllegalAccessException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		// Change default health
-		AttributeModifiable healthAttribute = this.getAttributeInstance(GenericAttributes.a);
-		healthAttribute.setValue(100.0D);
+		AttributeInstance healthAttribute = this.getAttribute(Attributes.MAX_HEALTH);
+		healthAttribute.setBaseValue(100.0D);
 		this.setHealth(100);
 
+	}
+
+	static {
+		try {
+			attributeField = AttributeMap.class.getDeclaredField("b");
+			attributeField.setAccessible(true);
+		} catch (NoSuchFieldException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void registerGenericAttribute(org.bukkit.entity.Entity entity, Attribute attribute)
+			throws IllegalAccessException {
+		AttributeMap attributeMapBase = ((CraftLivingEntity) entity).getHandle().getAttributes();
+		Map<Attribute, AttributeInstance> map = (Map<Attribute, AttributeInstance>) attributeField
+				.get(attributeMapBase);
+		Attribute attributeBase = attribute;
+		AttributeInstance attributeModifiable = new AttributeInstance(attributeBase, AttributeInstance::getAttribute);
+		attributeModifiable.setBaseValue(10.0D);
+		map.put(attributeBase, attributeModifiable);
 	}
 
 	@Override
@@ -79,41 +98,20 @@ public class Thief extends EntityVillager {
 		if (attacked && !avoiding) {
 			clearGoalSelectors();
 			// Goal selectors
-			this.bP.a(0, new PathfinderGoalAvoidTarget<>(this, EntityHuman.class, 10, 0.8D, 0.8D));
-			this.bP.a(1, new PathfinderGoalPanic(this, 1.5D));
-			this.bP.a(2, new PathfinderGoalRandomStrollLand(this, 0.6D));
-			this.bP.a(3, new PathfinderGoalRandomLookaround(this));
+			this.goalSelector.addGoal(0, (Goal) new AvoidEntityGoal<Player>(this, Player.class, 10, 0.8D, 0.8D));
+			this.goalSelector.addGoal(1, (Goal) new PanicGoal(this, 1.5D));
+			this.goalSelector.addGoal(2, (Goal) new RandomStrollGoal(this, 0.6D));
+			this.goalSelector.addGoal(3, (Goal) new RandomLookAroundGoal(this));
 			avoiding = true;
 		} else if (!attacked && !attacking) {
 			clearGoalSelectors();
 			// Target selector
-			this.bQ.a(0, new PathfinderGoalMeleeAttack(this, 0.8D, false));
+			this.targetSelector.addGoal(0, (Goal) new MeleeAttackGoal(this, 0.8D, false));
 			// Goal selector
-			this.bP.a(0, new PathfinderGoalNearestAttackableTarget<>(this, EntityHuman.class, true));
+			this.targetSelector.addGoal(0, new NearestAttackableTargetGoal<Player>(this, Player.class, true));
 			attacking = true;
 		}
 
-	}
-
-	static {
-		try {
-			attributeField = AttributeMapBase.class.getDeclaredField("b");
-			attributeField.setAccessible(true);
-		} catch (NoSuchFieldException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private void registerGenericAttribute(org.bukkit.entity.Entity entity, Attribute attribute)
-			throws IllegalAccessException {
-		AttributeMapBase attributeMapBase = ((CraftLivingEntity) entity).getHandle().getAttributeMap();
-		Map<AttributeBase, AttributeModifiable> map = (Map<AttributeBase, AttributeModifiable>) attributeField
-				.get(attributeMapBase);
-		AttributeBase attributeBase = CraftAttributeMap.toMinecraft(attribute);
-		AttributeModifiable attributeModifiable = new AttributeModifiable(attributeBase,
-				AttributeModifiable::getAttribute);
-		attributeModifiable.setValue(10.0D);
-		map.put(attributeBase, attributeModifiable);
 	}
 
 	// fucking villagers cant hold swords :(
@@ -121,10 +119,9 @@ public class Thief extends EntityVillager {
 		CraftVillager entity = (CraftVillager) this.getBukkitEntity();
 		entity.getEquipment().clear();
 		entity.getEquipment().setItemInMainHand(new ItemStack(Material.GOLDEN_SWORD));
-		this.updateEquipment();
 	}
 
-	public void stealItems(Player player) {
+	public void stealItems(org.bukkit.entity.Player player) {
 
 		// Steal all items from player except for sword
 		for (int i = 0; i < player.getInventory().getSize(); i++) {
@@ -145,17 +142,19 @@ public class Thief extends EntityVillager {
 
 	private void clearGoalSelectors() {
 
-		this.bP.a();
-		this.bQ.a();
+		this.goalSelector.removeAllGoals();
+		this.targetSelector.removeAllGoals();
 
-	}
-
-	public List<ItemStack> getStolenItems() {
-		return stolen_items;
 	}
 
 	public void setAttacked(boolean val) {
 		this.attacked = val;
+	}
+
+	public List<ItemStack> getStolenItems() {
+
+		return this.stolen_items;
+
 	}
 
 }

@@ -8,7 +8,7 @@ import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
 import org.bukkit.entity.Player;
 
 import com.egirlsnation.codingMobs.Bob;
@@ -37,24 +37,28 @@ public class SpawnCommands implements CommandExecutor {
 		if (arg0 instanceof Player) {
 			Player player = (Player) arg0;
 
-			if (arg3[0].equalsIgnoreCase("snowman")) {
+			if (arg3[0].equalsIgnoreCase("bob")) {
 
 				Bob angryBob = new Bob(plugin, player.getLocation(), false, false);
 				World world = player.getWorld();
-				((CraftWorld) world).getHandle().addEntity(angryBob);
+				((CraftWorld) world).getHandle().addFreshEntity(angryBob);
+				return true;
 
 			} else if (arg3[0].equalsIgnoreCase("thief")) {
 
 				Thief dirtyThief = new Thief(plugin, player.getLocation());
 				World world = player.getWorld();
-				((CraftWorld) world).getHandle().addEntity(dirtyThief);
-
+				((CraftWorld) world).getHandle().addFreshEntity(dirtyThief);
+				return true;
+				
 			}
 
 		}
 
-		return true;
+		return false;
 
 	}
+	
+	
 
 }

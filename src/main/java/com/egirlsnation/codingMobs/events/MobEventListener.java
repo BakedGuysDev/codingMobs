@@ -6,8 +6,8 @@ import java.util.logging.Logger;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftCreature;
+import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftCreature;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Snowman;
@@ -137,11 +137,11 @@ public class MobEventListener implements Listener {
 			// spawn theif
 			Thief dirtyThief = new Thief(plugin, event.getEntity().getLocation());
 			World world = plugin.getServer().getWorld(event.getEntity().getWorld().getName());
-			((CraftWorld) world).getHandle().addEntity(dirtyThief);
+			((CraftWorld) world).getHandle().addFreshEntity(dirtyThief);
 		} else { // spawn snowman
 			Bob angryBob = new Bob(plugin, event.getEntity().getLocation(), false, false);
 			World world = plugin.getServer().getWorld(event.getEntity().getWorld().getName());
-			((CraftWorld) world).getHandle().addEntity(angryBob);
+			((CraftWorld) world).getHandle().addFreshEntity(angryBob);
 		}
 
 		// Remove the originally spawned entity

@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Snowman;
 import org.bukkit.entity.Villager;
@@ -43,7 +43,7 @@ public class ChunkLoadListener implements Listener {
 				World world = plugin.getServer().getWorld(entity.getWorld().getName());
 				entity.remove();
 				Thief dirtyThief = new Thief(plugin, location);
-				((CraftWorld) world).getHandle().addEntity(dirtyThief);
+				((CraftWorld) world).getHandle().addFreshEntity(dirtyThief);
 
 			} else if ((entity instanceof Snowman) && entity.getCustomName() != null) {
 
@@ -51,7 +51,7 @@ public class ChunkLoadListener implements Listener {
 				World world = plugin.getServer().getWorld(entity.getWorld().getName());
 				entity.remove();
 				Bob angryBob = new Bob(plugin, location, false, false);
-				((CraftWorld) world).getHandle().addEntity(angryBob);
+				((CraftWorld) world).getHandle().addFreshEntity(angryBob);
 
 			}
 

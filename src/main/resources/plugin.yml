@@ -2,7 +2,7 @@ name: codingMobs
 author: codingPotato
 main: com.egirlsnation.codingMobs.Main
 version: 0.0.1
-api-version: 1.17
+api-version: 1.18
 website: 
 dev-url: 
 load: STARTUP
