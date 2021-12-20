@@ -22,6 +22,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.egirlsnation.codingMobs.Bob;
+import com.egirlsnation.codingMobs.Config;
 import com.egirlsnation.codingMobs.Main;
 import com.egirlsnation.codingMobs.Thief;
 
@@ -46,6 +47,12 @@ public class MobEventListener implements Listener {
 
 			// Drop gold nugget from villager
 			Random r = new Random();
+			
+			// 35% chance for thief to drop a gold nugget
+			if ((r.nextInt(1000 + 0) - 0) > 350) {
+				return;
+			}
+			
 			event.getEntity().getWorld().dropItemNaturally(event.getEntity().getLocation(),
 					new ItemStack(Material.GOLD_NUGGET));
 
@@ -56,11 +63,17 @@ public class MobEventListener implements Listener {
 				&& event.getDamager().getCustomName() != null) {
 
 			try {
-			((Thief) (((CraftCreature) event.getDamager()).getHandle())).setAttacked(true);
-			((Thief) (((CraftCreature) event.getDamager()).getHandle())).stealItems((Player) event.getEntity());
 			
-			((Player) (event.getEntity()))
-					.sendMessage(ChatColor.RED + "The dirty thief stole your items. Kill him to get your items back!");
+				((Thief) (((CraftCreature) event.getDamager()).getHandle())).setAttacked(true);
+				((Thief) (((CraftCreature) event.getDamager()).getHandle())).stealItems((Player) event.getEntity());
+
+				if (Config.isThiefMessageEnabled()) {
+
+					((Player) (event.getEntity())).sendMessage(ChatColor.GREEN + "[codingMobs] "
+							+ Config.getThiefMessageColor() + Config.getMessage("thief-message"));
+
+				}
+				
 			} catch (Exception ex) {
 				// class loader exception, did you fucking reload the plugin idiot?
 				// reloading the chunks will fix it you baka so chill
