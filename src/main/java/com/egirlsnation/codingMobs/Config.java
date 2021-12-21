@@ -27,6 +27,15 @@ public final class Config {
 	private static boolean thiefMessage;
 	private static String thiefMessageColor;
 	private static ConfigurationSection cfgMessagesMap;
+	private static ConfigurationSection cfgMobSettings;
+	private static boolean enableMobSpawn;
+	private static double spawnChancePercentage;
+	private static boolean enableThiefDrop;
+	private static double thiefDropPercentage;
+	private static double thiefDamage;
+	private static double bobDamage;
+	private static double thiefHealth;
+	private static double bobHealth;
 
 	public static void init(Main ci) {
 		plugin = ci;
@@ -43,6 +52,7 @@ public final class Config {
 		try {
 			cfg.load(cfgFile);
 			cfgMessagesMap = cfg.getConfigurationSection("messages");
+			cfgMobSettings = cfg.getConfigurationSection("mob-settings");
 			debug = cfg.getBoolean("display-debug-messages");
 			welcomeMessage = cfg.getBoolean("display-welcome-message");
 			welcomeMessageDelay = cfg.getInt("welcome-message-delay-ticks");
@@ -56,6 +66,25 @@ public final class Config {
 			plugin.log.warning("IO exception while reading plugin config");
 			e.printStackTrace();
 		}
+
+		try {
+			loadMobSettings();
+		} catch (Exception ex) {
+			plugin.log.warning("mob settings values cannot be cast. please check them.");
+		}
+
+	}
+
+	private static void loadMobSettings() {
+
+		enableMobSpawn = cfgMobSettings.getBoolean("allow-mob-spawn");
+		spawnChancePercentage = cfgMobSettings.getDouble("spawn-chance-percentage");
+		enableThiefDrop = cfgMobSettings.getBoolean("enable-thief-drop");
+		thiefDropPercentage = cfgMobSettings.getDouble("thief-drop-percentage");
+		thiefDamage = cfgMobSettings.getDouble("thief-damage");
+		bobDamage = cfgMobSettings.getDouble("bob-damage");
+		thiefHealth = cfgMobSettings.getDouble("thief-health");
+		bobHealth = cfgMobSettings.getDouble("bob-health");
 
 	}
 
@@ -72,7 +101,8 @@ public final class Config {
 				+ "welcome-message-color, select custom color for welcome message from mojang chat colors ex. red, green, aqua.\n"
 				+ "display-thief-message, enable the display of message when thief steals a player items.\n"
 				+ "thief-message-color, select custom color for thief message from mojang chat colors ex. red, green, aqua.\n"
-				+ "messages section, you can edit the messages if you want custom funny ones.\n";
+				+ "messages section, you can edit the messages if you want custom funny ones.\n"
+				+ "mob settings section, you can change the settings for the mobs here if you need to.\n";
 		cfg.options().header(header);
 
 		cfg.addDefault("display-debug-messages", false);
@@ -94,6 +124,21 @@ public final class Config {
 		cfg.createSection("messages");
 		for (String i : messages.keySet()) {
 			cfg.getConfigurationSection("messages").addDefault(i, messages.get(i));
+		}
+
+		// mob settings section keys and values
+		Map<String, Object> mobSettings = new HashMap<String, Object>();
+		mobSettings.put("enable-mob-spawn", true);
+		mobSettings.put("spawn-chance-percentage", 30);
+		mobSettings.put("enable-thief-drop", true);
+		mobSettings.put("thief-drop-percentage", 35);
+		mobSettings.put("thief-damage", 5.0);
+		mobSettings.put("bob-damage", 5.0);
+		mobSettings.put("thief-health", 100.0);
+		mobSettings.put("bob-health", 100.0);
+		cfg.createSection("mob-settings");
+		for (String i : mobSettings.keySet()) {
+			cfg.getConfigurationSection("mob-settings").addDefault(i, mobSettings.get(i));
 		}
 
 		if (!cfg.isSet("messages") || !cfg.isSet("stack-size") || !cfg.isSet("debug-messages")) {
@@ -186,6 +231,38 @@ public final class Config {
 
 		return returnColor;
 
+	}
+
+	public static boolean isSpawnEnabled() {
+		return enableMobSpawn;
+	}
+
+	public static double getSpawnChance() {
+		return spawnChancePercentage;
+	}
+
+	public static boolean isThiefDropEnabled() {
+		return enableThiefDrop;
+	}
+
+	public static double getThiefDropPercentage() {
+		return thiefDropPercentage;
+	}
+
+	public static double getThiefDamage() {
+		return thiefDamage;
+	}
+
+	public static double getBobDamage() {
+		return bobDamage;
+	}
+	
+	public static double getThiefHealth() {
+		return thiefHealth;
+	}
+	
+	public static double getBobHealth() {
+		return bobHealth;
 	}
 
 }

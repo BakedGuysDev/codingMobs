@@ -65,8 +65,8 @@ public class Bob extends EntitySnowman {
 
 		// Change default health
 		AttributeModifiable healthAttribute = this.getAttributeInstance(GenericAttributes.a);
-		healthAttribute.setValue(100.0D);
-		this.setHealth(100);
+		healthAttribute.setValue(Config.getBobHealth());
+		this.setHealth((float) Config.getBobHealth());
 
 	}
 

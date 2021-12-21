@@ -1,5 +1,6 @@
 package com.egirlsnation.codingMobs.events;
 
+import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
 
@@ -23,10 +24,9 @@ import org.bukkit.inventory.ItemStack;
 
 import com.egirlsnation.codingMobs.Bob;
 import com.egirlsnation.codingMobs.Config;
+import com.egirlsnation.codingMobs.LogFormatter;
 import com.egirlsnation.codingMobs.Main;
 import com.egirlsnation.codingMobs.Thief;
-
-import net.md_5.bungee.api.ChatColor;
 
 public class MobEventListener implements Listener {
 
@@ -45,16 +45,26 @@ public class MobEventListener implements Listener {
 		if (event.getEntity() instanceof Villager && event.getEntity().getCustomName() != null
 				&& event.getDamager() instanceof Player) {
 
+			if (!Config.isThiefDropEnabled())
+				return;
+
 			// Drop gold nugget from villager
 			Random r = new Random();
 
-			// 35% chance for thief to drop a gold nugget
-			if ((r.nextInt(1000 + 0) - 0) > 350) {
+			// Chance for thief to drop a gold nugget
+			if ((r.nextInt(1000 + 0) - 0) > (Config.getSpawnChance() * 10)) {
 				return;
 			}
 
+			if (Config.isDebugging())
+				log.info(LogFormatter.format(LogFormatter.priority.HIGH, "Damage Event",
+						"Damage Event has been caught."));
+
 			event.getEntity().getWorld().dropItemNaturally(event.getEntity().getLocation(),
 					new ItemStack(Material.GOLD_NUGGET));
+
+			if (Config.isDebugging())
+				log.info(LogFormatter.format(LogFormatter.priority.LOW, "Thief Drop", "Thief dropped a gold_nugget."));
 
 		}
 
@@ -66,19 +76,30 @@ public class MobEventListener implements Listener {
 				((Thief) (((CraftCreature) event.getDamager()).getHandle())).setAttacked(true);
 				((Thief) (((CraftCreature) event.getDamager()).getHandle())).stealItems((Player) event.getEntity());
 
+				if (Config.isDebugging()) {
+					log.info(LogFormatter.format(LogFormatter.priority.HIGH, "Damage Event",
+							"Damage event has been caught."));
+					log.info(LogFormatter.format(LogFormatter.priority.LOW, "Entity Attack",
+							"Thief stole items of player: " + event.getEntity().getName() + "."));
+				}
+
 				if (Config.isThiefMessageEnabled()) {
 
-					((Player) (event.getEntity())).sendMessage(ChatColor.GREEN + "[codingMobs] "
-							+ Config.getThiefMessageColor() + Config.getMessage("thief-message"));
+					((Player) (event.getEntity())).sendMessage(
+							Config.getWelcomeMessageHeaderColor() + "[" + Config.getMessage("welcome-message-header")
+									+ "] " + Config.getThiefMessageColor() + Config.getMessage("thief-message"));
 
 				}
 
 			} catch (Exception ex) {
-				// class loader exception, did you fucking reload the plugin idiot?
-				// reloading the chunks will fix it you baka so chill
+				plugin.log.warning("Custom mob doesn't belong to this runtime.");
 			}
 
-			((Player) event.getEntity()).damage(5.0D);
+			((Player) event.getEntity()).damage(Config.getThiefDamage());
+			if (Config.isDebugging())
+				log.info(LogFormatter.format(LogFormatter.priority.HIGH, "Thief Attack", "Thief attacked player: "
+						+ event.getEntity().getName() + " and dealt a damage of: " + Config.getThiefDamage() + "."));
+
 			event.setCancelled(true);
 
 		}
@@ -87,7 +108,18 @@ public class MobEventListener implements Listener {
 		if (event.getEntity() instanceof Player && event.getDamager() instanceof Snowman
 				&& event.getDamager().getCustomName() != null) {
 
-			((Player) event.getEntity()).damage(5.0D);
+			if (Config.isDebugging()) {
+				log.info(LogFormatter.format(LogFormatter.priority.HIGH, "Damage Event",
+						"Damage event has been caught."));
+				log.info(LogFormatter.format(LogFormatter.priority.LOW, "Entity Attack",
+						"Bob Attacked player: " + event.getEntity().getName() + "."));
+			}
+
+			((Player) event.getEntity()).damage(Config.getBobDamage());
+			if (Config.isDebugging())
+				log.info(LogFormatter.format(LogFormatter.priority.HIGH, "Thief Attack", "Thief attacked player: "
+						+ event.getEntity().getName() + " and dealt a damage of: " + Config.getBobDamage() + "."));
+
 			event.setCancelled(true);
 
 		}
@@ -106,13 +138,33 @@ public class MobEventListener implements Listener {
 		}
 
 		try {
+
 			for (ItemStack item : ((Thief) ((CraftCreature) event.getEntity()).getHandle()).getStolenItems()) {
 				if (item != null) {
 					event.getEntity().getWorld().dropItemNaturally(event.getEntity().getLocation(), item);
 				}
 			}
+
+			if (Config.isDebugging()) {
+
+				log.info(
+						LogFormatter.format(LogFormatter.priority.HIGH, "Death Event", "Death event has been caught."));
+
+				List<ItemStack> list = ((Thief) ((CraftCreature) event.getEntity()).getHandle()).getStolenItems();
+				if (list != null && list.size() > 0) {
+					log.info(LogFormatter.format(LogFormatter.priority.LOW, "Entity Death",
+							"Player: " + event.getEntity().getName() + " Killed Thief and got the items back."));
+				} else {
+					log.info(LogFormatter.format(LogFormatter.priority.LOW, "Entity Death",
+							"Player: " + event.getEntity().getName() + " Killed Thief."));
+				}
+
+			}
+
 		} catch (Exception ex) {
-			// The villiger had an empty stolenItems list :KEK:
+			log.info(LogFormatter.format(LogFormatter.priority.HIGH, "Death Event", "Death event has been caught."));
+			log.info(LogFormatter.format(LogFormatter.priority.LOW, "Entity Death",
+					"Player: " + event.getEntity().getName() + " Killed Thief but villager had no items to drop."));
 		}
 
 	}
@@ -122,6 +174,10 @@ public class MobEventListener implements Listener {
 		Random r = new Random();
 
 		if (!(event.getEntity() instanceof Zombie) && !(event.getEntity() instanceof Skeleton))
+			return;
+
+		// Only spawn when enabled
+		if (!Config.isSpawnEnabled())
 			return;
 
 		// Only spawn for entities on the surface
@@ -139,10 +195,13 @@ public class MobEventListener implements Listener {
 			return;
 		}
 
-		// 30% chance to replace the entity
-		if ((r.nextInt(1000 + 0) - 0) > 300) {
+		// Chance to replace the entity
+		if ((r.nextInt(1000 + 0) - 0) > (Config.getSpawnChance() * 10)) {
 			return;
 		}
+
+		if (Config.isDebugging())
+			log.info(LogFormatter.format(LogFormatter.priority.HIGH, "Spawn Event", "Spawn event has been caught."));
 
 		// Choose between thief and snowman 50% 50% chance
 		if ((r.nextInt(1000 + 0) - 0) > 500) {
@@ -150,10 +209,20 @@ public class MobEventListener implements Listener {
 			Thief dirtyThief = new Thief(plugin, event.getEntity().getLocation());
 			World world = plugin.getServer().getWorld(event.getEntity().getWorld().getName());
 			((CraftWorld) world).getHandle().addEntity(dirtyThief);
+			if (Config.isDebugging())
+				log.info(LogFormatter.format(LogFormatter.priority.LOW, "Entity Spawn",
+						"Thief has spawned at: X: " + event.getEntity().getLocation().getX() + " Y: "
+								+ event.getEntity().getLocation().getY() + " Z: "
+								+ event.getEntity().getLocation().getZ() + "."));
 		} else { // spawn snowman
 			Bob angryBob = new Bob(plugin, event.getEntity().getLocation(), false, false);
 			World world = plugin.getServer().getWorld(event.getEntity().getWorld().getName());
 			((CraftWorld) world).getHandle().addEntity(angryBob);
+			if (Config.isDebugging())
+				log.info(LogFormatter.format(LogFormatter.priority.LOW, "Entity Spawn",
+						"Bob has spawned at: X: " + event.getEntity().getLocation().getX() + " Y: "
+								+ event.getEntity().getLocation().getY() + " Z: "
+								+ event.getEntity().getLocation().getZ() + "."));
 		}
 
 		// Remove the originally spawned entity

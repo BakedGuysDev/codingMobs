@@ -7,6 +7,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 import com.egirlsnation.codingMobs.Config;
+import com.egirlsnation.codingMobs.LogFormatter;
 import com.egirlsnation.codingMobs.Main;
 
 import net.md_5.bungee.api.ChatColor;
@@ -27,7 +28,8 @@ public class PlayerJoinListener implements Listener {
 	public void onPlayerJoin(PlayerJoinEvent event) {
 
 		if (Config.isDebugging()) {
-			log.info("Caught player join event.");
+			log.info(LogFormatter.format(LogFormatter.priority.HIGH, "Join Event",
+					"Player join event has been caught."));
 		}
 
 		if (Config.isWelcomeEnabled()) {
@@ -43,7 +45,8 @@ public class PlayerJoinListener implements Listener {
 									+ Config.getWelcomeMessageColor() + Config.getMessage("welcome-message"));
 
 					if (Config.isDebugging())
-						log.info("Sent welcome message to player: " + event.getPlayer().getName());
+						log.info(LogFormatter.format(LogFormatter.priority.LOW, "Message Player",
+								"Sent welcome message to player: " + event.getPlayer().getName()));
 
 				}
 

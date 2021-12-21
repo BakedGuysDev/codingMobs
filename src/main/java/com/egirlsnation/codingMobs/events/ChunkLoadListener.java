@@ -15,6 +15,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkLoadEvent;
 
 import com.egirlsnation.codingMobs.Bob;
+import com.egirlsnation.codingMobs.Config;
+import com.egirlsnation.codingMobs.LogFormatter;
 import com.egirlsnation.codingMobs.Main;
 import com.egirlsnation.codingMobs.Thief;
 
@@ -36,23 +38,41 @@ public class ChunkLoadListener implements Listener {
 
 		for (Entity entity : loadedChunk.getEntities()) {
 
-			// Check for custom villagers
-			if ((entity instanceof Villager) && entity.getCustomName() != null) {
+			if (((entity instanceof Villager) || (entity instanceof Snowman)) && entity.getCustomName() != null) {
 
-				Location location = entity.getLocation();
-				World world = plugin.getServer().getWorld(entity.getWorld().getName());
-				entity.remove();
-				Thief dirtyThief = new Thief(plugin, location);
-				((CraftWorld) world).getHandle().addEntity(dirtyThief);
+				if (Config.isDebugging())
+					log.info(LogFormatter.format(LogFormatter.priority.HIGH, "Chunk Event",
+							"Chunk load event has been caught."));
 
-				// Check for custom snow golem
-			} else if ((entity instanceof Snowman) && entity.getCustomName() != null) {
+				// Check for custom villagers
+				if ((entity instanceof Villager) && entity.getCustomName() != null) {
 
-				Location location = entity.getLocation();
-				World world = plugin.getServer().getWorld(entity.getWorld().getName());
-				entity.remove();
-				Bob angryBob = new Bob(plugin, location, false, false);
-				((CraftWorld) world).getHandle().addEntity(angryBob);
+					Location location = entity.getLocation();
+					World world = plugin.getServer().getWorld(entity.getWorld().getName());
+					entity.remove();
+					Thief dirtyThief = new Thief(plugin, location);
+					((CraftWorld) world).getHandle().addEntity(dirtyThief);
+
+					if (Config.isDebugging())
+						log.info(LogFormatter.format(LogFormatter.priority.LOW, "Entity Replace",
+								"Replaced custom villager at: X: " + location.getX() + " Y: " + location.getY() + " Z: "
+										+ location.getZ() + "."));
+
+					// Check for custom snow golem
+				} else if ((entity instanceof Snowman) && entity.getCustomName() != null) {
+
+					Location location = entity.getLocation();
+					World world = plugin.getServer().getWorld(entity.getWorld().getName());
+					entity.remove();
+					Bob angryBob = new Bob(plugin, location, false, false);
+					((CraftWorld) world).getHandle().addEntity(angryBob);
+
+					if (Config.isDebugging())
+						log.info(LogFormatter.format(LogFormatter.priority.LOW, "Entity Replace",
+								"Replaced custom snow_golem at: X: " + location.getX() + " Y: " + location.getY()
+										+ " Z: " + location.getZ() + "."));
+
+				}
 
 			}
 

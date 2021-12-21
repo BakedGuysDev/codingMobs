@@ -60,8 +60,8 @@ public class Thief extends EntityVillager {
 
 		// Change default health
 		AttributeModifiable healthAttribute = this.getAttributeInstance(GenericAttributes.a);
-		healthAttribute.setValue(100.0D);
-		this.setHealth(100);
+		healthAttribute.setValue(Config.getThiefHealth());
+		this.setHealth((float) Config.getThiefHealth());
 
 	}
 
