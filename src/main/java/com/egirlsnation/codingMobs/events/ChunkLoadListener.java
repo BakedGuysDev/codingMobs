@@ -45,6 +45,7 @@ public class ChunkLoadListener implements Listener {
 				Thief dirtyThief = new Thief(plugin, location);
 				((CraftWorld) world).getHandle().addFreshEntity(dirtyThief);
 
+				// Check for custom snow golem
 			} else if ((entity instanceof Snowman) && entity.getCustomName() != null) {
 
 				Location location = entity.getLocation();

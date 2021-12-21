@@ -21,8 +21,10 @@ public final class Config {
 	// Available settings variables
 	private static boolean debug;
 	private static boolean welcomeMessage;
-	private static boolean thiefMessage;
+	private static int welcomeMessageDelay;
+	private static String welcomeMessageHeaderColor;
 	private static String welcomeMessageColor;
+	private static boolean thiefMessage;
 	private static String thiefMessageColor;
 	private static ConfigurationSection cfgMessagesMap;
 
@@ -43,8 +45,10 @@ public final class Config {
 			cfgMessagesMap = cfg.getConfigurationSection("messages");
 			debug = cfg.getBoolean("display-debug-messages");
 			welcomeMessage = cfg.getBoolean("display-welcome-message");
-			thiefMessage = cfg.getBoolean("display-thief-message");
+			welcomeMessageDelay = cfg.getInt("welcome-message-delay-ticks");
+			welcomeMessageHeaderColor = cfg.getString("welcome-message-header-color");
 			welcomeMessageColor = cfg.getString("welcome-message-color");
+			thiefMessage = cfg.getBoolean("display-thief-message");
 			thiefMessageColor = cfg.getString("thief-message-color");
 		} catch (FileNotFoundException e) {
 			setupCfg();
@@ -56,30 +60,34 @@ public final class Config {
 	}
 
 	// Sets up the default variables if they don't exist yet.
-	public static void setupCfg() {
+	private static void setupCfg() {
 		// Print debug message
 		plugin.log.warning("config.yml not found. Creating a new one");
 
 		// Add sexy ass header with instructions for idiots to follow
-		String header = "General options:\n"
-				+ "display-debug-messages, enable the display of plugin debug messages.\n"
+		String header = "General options:\n" + "display-debug-messages, enable the display of plugin debug messages.\n"
 				+ "display-welcome-message, enable the display of a custom welcome message to players when they join.\n"
-				+ "display-thief-message, enable the display of message when thief steals a player items.\n"
+				+ "welcome-message-delay-ticks, delay in ticks before the welcome message is sent after player join.\n"
+				+ "welcome-message-header-color, select custom color for welcome message header from mojang chat colors ex. red, green, aqua.\n"
 				+ "welcome-message-color, select custom color for welcome message from mojang chat colors ex. red, green, aqua.\n"
+				+ "display-thief-message, enable the display of message when thief steals a player items.\n"
 				+ "thief-message-color, select custom color for thief message from mojang chat colors ex. red, green, aqua.\n"
 				+ "messages section, you can edit the messages if you want custom funny ones.\n";
 		cfg.options().header(header);
 
 		cfg.addDefault("display-debug-messages", false);
 		cfg.addDefault("display-welcome-message", true);
-		cfg.addDefault("display-thief-message", true);
+		cfg.addDefault("welcome-message-delay-ticks", 150);
+		cfg.addDefault("welcomeMessageHeaderColor", "green");
 		cfg.addDefault("welcome-message-color", "red");
+		cfg.addDefault("display-thief-message", true);
 		cfg.addDefault("thief-message-color", "red");
 
 		// messages section keys and values
 		Map<String, Object> messages = new HashMap<String, Object>();
 		messages.put("no-perm", "BAKA! You don't have permission to use this command!");
 		messages.put("no-player", "NANI, Only players can use this command!");
+		messages.put("welcome-message-header", "codingMobs");
 		messages.put("welcome-message", "Merry Christmas, beware of the new sussy christmas mobs!");
 		messages.put("thief-message", "The dirty thief stole your items, kill him to get your items back!");
 		// janky ass code but should work to add values to message section
@@ -127,8 +135,23 @@ public final class Config {
 		return welcomeMessage;
 	}
 
-	public static boolean isThiefMessageEnabled() {
-		return thiefMessage;
+	public static int getWelcomeMessageDelay() {
+		return welcomeMessageDelay;
+	}
+
+	public static ChatColor getWelcomeMessageHeaderColor() {
+
+		ChatColor returnColor;
+
+		try {
+			returnColor = ChatColor.of(welcomeMessageHeaderColor);
+		} catch (Exception ex) {
+			plugin.log.warning("Wrong thief message color code, using default green color.");
+			returnColor = ChatColor.GREEN;
+		}
+
+		return returnColor;
+
 	}
 
 	public static ChatColor getWelcomeMessageColor() {
@@ -144,6 +167,10 @@ public final class Config {
 
 		return returnColor;
 
+	}
+
+	public static boolean isThiefMessageEnabled() {
+		return thiefMessage;
 	}
 
 	public static ChatColor getThiefMessageColor() {
