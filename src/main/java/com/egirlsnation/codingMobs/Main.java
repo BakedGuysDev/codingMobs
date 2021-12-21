@@ -15,6 +15,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import com.egirlsnation.codingMobs.commands.AdminCommands;
 import com.egirlsnation.codingMobs.commands.SpawnCommands;
 import com.egirlsnation.codingMobs.commands.SpawnTabCompleter;
 import com.egirlsnation.codingMobs.events.ChunkLoadListener;
@@ -34,6 +35,7 @@ public class Main extends JavaPlugin {
 		// Initialize classes and commands
 		this.getCommand("spawn").setExecutor(new SpawnCommands(this));
 		this.getCommand("spawn").setTabCompleter(new SpawnTabCompleter());
+		this.getCommand("codingMobs").setExecutor(new AdminCommands(this));
 		Config.init(this);
 
 		// Register permissions
@@ -109,13 +111,18 @@ public class Main extends JavaPlugin {
 	private void registerPermissions() {
 
 		Permission spawnPermission = new Permission("codingMobs.spawn");
+		Permission adminPermission = new Permission("codingMobs.admin");
 		spawnPermission.setDefault(PermissionDefault.FALSE);
+		adminPermission.setDefault(PermissionDefault.FALSE);
 
 		PluginManager pm = getServer().getPluginManager();
 		Set<Permission> permissions = pm.getPermissions();
 
 		if (!permissions.contains(spawnPermission))
 			pm.addPermission(spawnPermission);
+
+		if (!permissions.contains(adminPermission))
+			pm.addPermission(adminPermission);
 
 	}
 

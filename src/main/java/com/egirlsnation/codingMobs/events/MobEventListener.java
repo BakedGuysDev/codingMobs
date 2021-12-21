@@ -9,8 +9,10 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftCreature;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Skeleton;
+import org.bukkit.entity.Snowball;
 import org.bukkit.entity.Snowman;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.Zombie;
@@ -79,7 +81,7 @@ public class MobEventListener implements Listener {
 				if (Config.isDebugging()) {
 					log.info(LogFormatter.format(LogFormatter.priority.HIGH, "Damage Event",
 							"Damage event has been caught."));
-					log.info(LogFormatter.format(LogFormatter.priority.LOW, "Entity Attack",
+					log.info(LogFormatter.format(LogFormatter.priority.LOW, "Thief Attack",
 							"Thief stole items of player: " + event.getEntity().getName() + "."));
 				}
 
@@ -97,7 +99,7 @@ public class MobEventListener implements Listener {
 
 			((Player) event.getEntity()).damage(Config.getThiefDamage());
 			if (Config.isDebugging())
-				log.info(LogFormatter.format(LogFormatter.priority.HIGH, "Thief Attack", "Thief attacked player: "
+				log.info(LogFormatter.format(LogFormatter.priority.LOW, "Thief Attack", "Thief attacked player: "
 						+ event.getEntity().getName() + " and dealt a damage of: " + Config.getThiefDamage() + "."));
 
 			event.setCancelled(true);
@@ -105,19 +107,20 @@ public class MobEventListener implements Listener {
 		}
 
 		// Check if snowman attacked player
-		if (event.getEntity() instanceof Player && event.getDamager() instanceof Snowman
-				&& event.getDamager().getCustomName() != null) {
+		if (event.getEntity() instanceof Player && event.getDamager() instanceof Snowball
+				&& event.getDamager().getFireTicks() > 0) {
 
 			if (Config.isDebugging()) {
 				log.info(LogFormatter.format(LogFormatter.priority.HIGH, "Damage Event",
 						"Damage event has been caught."));
-				log.info(LogFormatter.format(LogFormatter.priority.LOW, "Entity Attack",
-						"Bob Attacked player: " + event.getEntity().getName() + "."));
+				log.info(LogFormatter.format(LogFormatter.priority.LOW, "Bob Attack",
+						"Bob attacked player: " + event.getEntity().getName() + "."));
 			}
 
-			((Player) event.getEntity()).damage(Config.getBobDamage());
+			((Player) event.getEntity()).damage(Config.getBobDamage(),
+					(Entity) ((Snowball) event.getDamager()).getShooter());
 			if (Config.isDebugging())
-				log.info(LogFormatter.format(LogFormatter.priority.HIGH, "Thief Attack", "Thief attacked player: "
+				log.info(LogFormatter.format(LogFormatter.priority.LOW, "Bob Attack", "Bob attacked player: "
 						+ event.getEntity().getName() + " and dealt a damage of: " + Config.getBobDamage() + "."));
 
 			event.setCancelled(true);

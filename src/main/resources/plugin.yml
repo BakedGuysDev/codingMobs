@@ -8,12 +8,11 @@ dev-url:
 load: STARTUP
 
 commands:
-   debug:
-      description: different debug commands.
-      usage: /<command>
-      permissions: 
-      
    spawn:
       description: spawns a custom entity on your location.
+      usage: /<command>
+      permissions: 
+   codingMobs:
+      description: General command for admin operations.
       usage: /<command>
       permissions: 
