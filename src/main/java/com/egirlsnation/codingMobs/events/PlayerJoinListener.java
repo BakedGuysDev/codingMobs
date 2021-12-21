@@ -37,15 +37,17 @@ public class PlayerJoinListener implements Listener {
 				@Override
 				public void run() {
 
-					event.getPlayer().sendMessage(ChatColor.GREEN + "[codingMobs] " + Config.getWelcomeMessageColor()
-							+ Config.getMessage("welcome-message"));
+					event.getPlayer()
+							.sendMessage(Config.getWelcomeMessageHeaderColor() + "["
+									+ Config.getMessage("welcome-message-header") + "] "
+									+ Config.getWelcomeMessageColor() + Config.getMessage("welcome-message"));
 
 					if (Config.isDebugging())
 						log.info("Sent welcome message to player: " + event.getPlayer().getName());
 
 				}
 
-			}, 100);
+			}, Config.getWelcomeMessageDelay());
 
 		}
 
