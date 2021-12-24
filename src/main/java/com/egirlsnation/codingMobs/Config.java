@@ -77,7 +77,7 @@ public final class Config {
 
 	private static void loadMobSettings() {
 
-		enableMobSpawn = cfgMobSettings.getBoolean("allow-mob-spawn");
+		enableMobSpawn = cfgMobSettings.getBoolean("enable-mob-spawn");
 		spawnChancePercentage = cfgMobSettings.getDouble("spawn-chance-percentage");
 		enableThiefDrop = cfgMobSettings.getBoolean("enable-thief-drop");
 		thiefDropPercentage = cfgMobSettings.getDouble("thief-drop-percentage");

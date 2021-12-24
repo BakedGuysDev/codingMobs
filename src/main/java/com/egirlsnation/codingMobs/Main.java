@@ -60,7 +60,7 @@ public class Main extends JavaPlugin {
 							&& entity.getCustomName() != null) {
 
 						if (Config.isDebugging())
-							log.info(LogFormatter.format(LogFormatter.priority.MEDIUM, "Server Startup",
+							log.info(LogFormatter.format(LogFormatter.priority.HIGH, "Server Startup",
 									"Loading custom entities at spawn."));
 
 						// Check for custom villagers
@@ -100,6 +100,33 @@ public class Main extends JavaPlugin {
 			}
 		};
 		runnable.runTaskLater(this, 1L);
+
+		// Print out the config settings to confirm
+		if (Config.isDebugging()) {
+			
+			log.info("######################");
+			log.info("# codingMobs config: #");
+			log.info("######################");
+			log.info(LogFormatter.format(LogFormatter.priority.MEDIUM, "Debug Mode", Config.isDebugging() + ""));
+			log.info(LogFormatter.format(LogFormatter.priority.MEDIUM, "Welcome Message", Config.isWelcomeEnabled() + ""));
+			log.info(LogFormatter.format(LogFormatter.priority.MEDIUM, "Welcome Delay", Config.getWelcomeMessageDelay() + ""));
+			log.info(LogFormatter.format(LogFormatter.priority.MEDIUM, "Welcome Header Color", Config.getWelcomeMessageHeaderColor() + ""));
+			log.info(LogFormatter.format(LogFormatter.priority.MEDIUM, "Welcome Message Color", Config.getWelcomeMessageColor() + ""));
+			log.info(LogFormatter.format(LogFormatter.priority.MEDIUM, "Display Thief Message", Config.isThiefMessageEnabled() + ""));
+			log.info(LogFormatter.format(LogFormatter.priority.MEDIUM, "Thief Message Color", Config.getThiefMessageColor() + ""));
+			log.info("#################");
+			log.info("# Mob Settings: #");
+			log.info("#################");
+			log.info(LogFormatter.format(LogFormatter.priority.MEDIUM, "Enable Mob Spawn", Config.isSpawnEnabled() + ""));
+			log.info(LogFormatter.format(LogFormatter.priority.MEDIUM, "Thief Drop percentage", Config.getThiefDropPercentage() + ""));
+			log.info(LogFormatter.format(LogFormatter.priority.MEDIUM, "Thief Damage", Config.getThiefDamage() + ""));
+			log.info(LogFormatter.format(LogFormatter.priority.MEDIUM, "Bob Damage", Config.getBobDamage() + ""));
+			log.info(LogFormatter.format(LogFormatter.priority.MEDIUM, "Spawn Chance", Config.getSpawnChance() + ""));
+			log.info(LogFormatter.format(LogFormatter.priority.MEDIUM, "Enable Thief Drop", Config.isThiefDropEnabled() + ""));
+			log.info(LogFormatter.format(LogFormatter.priority.MEDIUM, "Bob Health", Config.getBobHealth() + ""));
+			log.info(LogFormatter.format(LogFormatter.priority.MEDIUM, "Thief Health", Config.getThiefHealth() + ""));
+			
+		}
 
 	}
 

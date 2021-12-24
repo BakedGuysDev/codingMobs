@@ -113,8 +113,6 @@ public class MobEventListener implements Listener {
 			if (Config.isDebugging()) {
 				log.info(LogFormatter.format(LogFormatter.priority.HIGH, "Damage Event",
 						"Damage event has been caught."));
-				log.info(LogFormatter.format(LogFormatter.priority.LOW, "Bob Attack",
-						"Bob attacked player: " + event.getEntity().getName() + "."));
 			}
 
 			((Player) event.getEntity()).damage(Config.getBobDamage(),
@@ -172,7 +170,7 @@ public class MobEventListener implements Listener {
 
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onCreatureSpawn(CreatureSpawnEvent event) {
 		Random r = new Random();
 

@@ -30,7 +30,7 @@ public class ChunkLoadListener implements Listener {
 		this.plugin = plugin;
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onChunkLoad(ChunkLoadEvent event) {
 
 		// Replace the custom entites because the AI will not load
